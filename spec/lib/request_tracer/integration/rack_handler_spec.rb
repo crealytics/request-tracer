@@ -37,7 +37,7 @@ describe RequestTracer::Integration::RackHandler do
     end
   end
 
-  let(:trace_headers) { RequestTracer::Integration::RackHandler::B3_REQUIRED_HEADERS.map {|a| [a, rand(1000)] }.to_h }
+  let(:trace_headers) { RequestTracer::B3_REQUIRED_HEADERS.map {|a| [a, rand(1000)] }.to_h }
   context 'Zipkin headers are passed to the middleware' do
     subject { middleware(service) }
     it_behaves_like "traces the request"
