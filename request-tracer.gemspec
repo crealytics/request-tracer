@@ -1,5 +1,5 @@
 # coding: utf-8
-require_relative 'lib/request_tracer/version'
+require File.expand_path('../lib/request_tracer/version', __FILE__)
 
 Gem::Specification.new do |spec|
   spec.name          = "request-tracer"
