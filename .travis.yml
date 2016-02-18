@@ -12,3 +12,11 @@ matrix:
     - rvm: rbx
     - rvm: jruby-head
 sudo: false
+deploy:
+  provider: rubygems
+  api_key:
+    secure: hUcjWlgTDJWwJyIx17z28TWjPOIoul9EvbcpBUFU5S87GKx6tysz+YPbsxVivF6pBKfvg3t3KpROKX7mZbO0/5TXXylY2nSLKa0SoVmbSbwIKtwkcYqEi8Hc77JRWHm5XOnqtYhC2UzzDUIOT/8MFacXq+D+06ZcFnB4jrndS66ZvTo6T81nWYS8rOBY+YDz5snwvbUNNAvXE/AdhnkSLBdPDE68AGEUzH9CT+x38UnN+ajXs+CqWDcvTSZVXSRhUqvH73SH5Ow+lApQfSZoxnvl70C9FShxIl18F9o1ax0q312si+p/1Q/x2Hq6C6PowncAwkP1qbDORp86uANUaspDfchXpsW6MSq0/a0jumN5gLTXB2pSRSxXWFFKv9wtOXAsO6+ig48NjqyczGsp02nZCOSHumw6xkoP4Bjg2zqk0OVd0dHsXDFa5r68nJsFeA7szYQI5/6GbTN3aqm5iCcTBGbVG/pQ9SEmvz9bcSeKoSGcIcTbb11QTj1rRPlsZ0L7Li0pN46/AwCniFMPD5nTTgKqHq1GfM6ot9IN7rVl7XbaQCHMedcpcrwjj2/hzKHhOdp4VjXm2Oc98dXxaQY3xziSKxpnMmYKHpg0nbUa4JNpYzuM9ZfnpMNri4WNdc2vE+p3TgNvNP2BFgpUQJGg1g5lTLe2w0Yo8MtNVFk=
+  gem: request-tracer
+  on:
+    tags: true
+    repo: crealytics/request-tracer
