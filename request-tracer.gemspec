@@ -26,5 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "guard-rspec", "~> 4.6"
   spec.add_development_dependency "guard-bundler", "~> 2.1"
   spec.add_development_dependency 'geminabox'
+  spec.add_development_dependency 'gem-release'
   spec.add_development_dependency 'pry'
 end
