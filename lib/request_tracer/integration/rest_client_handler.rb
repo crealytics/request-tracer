@@ -1,4 +1,5 @@
 require_relative 'base'
+require_relative '../trace'
 module RequestTracer
   module Integration
     module RestClientHandler
