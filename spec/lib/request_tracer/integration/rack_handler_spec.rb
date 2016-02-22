@@ -22,7 +22,7 @@ describe RequestTracer::Integration::RackHandler do
   end
 
   before do
-    allow(tracer).to receive(:record) {|&block| block.call }
+    allow(tracer).to receive(:push) {|&block| block.call }
   end
 
   shared_examples_for 'traces the request' do
@@ -33,7 +33,7 @@ describe RequestTracer::Integration::RackHandler do
       get '/'
       expect(last_response.status).to eq(200)
       expect(last_response.body).to eq('hello')
-      expect(tracer).to have_received(:record).with(extract_fields_from_headers(trace_headers))
+      expect(tracer).to have_received(:push).with(extract_fields_from_headers(trace_headers))
     end
   end
 

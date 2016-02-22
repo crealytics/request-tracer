@@ -9,7 +9,7 @@ module RequestTracer
         @tracer = config[:tracer] || Trace
       end
       def call(env)
-        @tracer.record(extract_fields_from_headers(env)) do
+        @tracer.push(extract_fields_from_headers(env)) do
           @app.call(env)
         end
       end

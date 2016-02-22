@@ -48,6 +48,9 @@ module RequestTracer
         span_id = Trace.generate_id
         self.new(h["trace_id"] || span_id, h["span_id"], Trace.generate_id)
       end
+      def self.create(h)
+        self.new(h["trace_id"], h["parent_span_id"], h["span_id"])
+      end
       def initialize(trace_id, parent_id, span_id)
         @trace_id = SpanId.from_value(trace_id)
         @parent_id = parent_id && SpanId.from_value(parent_id)
@@ -73,21 +76,31 @@ module RequestTracer
       end
     end
 
+    def create
+      span_id = generate_id
+      trace_id = TraceId.new(span_id, nil, span_id)
+      stack.push(trace_id)
+      trace_id
+    end
 
     def latest
-      if stack.empty?
-        span_id = generate_id
-        trace_id = TraceId.new(span_id, nil, span_id)
-        stack.push(trace_id)
-      end
       stack.last
     end
 
+    def latest_or_create
+      latest || create
+    end
+
     def push(trace_info)
-      stack.push(TraceId.spawn_from_hash(trace_info))
+      trace = if trace_info.include?("trace_id") && trace_info.include?("span_id")
+        TraceId.create(trace_info)
+      else
+        TraceId.spawn_from_hash(trace_info)
+      end
+      stack.push(trace)
       if block_given?
         begin
-          yield
+          yield trace
         ensure
           pop
         end
@@ -96,6 +109,10 @@ module RequestTracer
 
     def pop
       stack.pop
+    end
+
+    def clear
+      stack.clear
     end
 
     def unwind
@@ -109,12 +126,8 @@ module RequestTracer
       end
     end
 
-    def record(annotation, &block)
-      tracer.record(latest, annotation, &block)
-    end
-
-    def set_rpc_name(name)
-      tracer.set_rpc_name(latest, name) unless stack.empty?
+    def record(annotation = nil, &block)
+      tracer.record(latest.next_id, annotation, &block)
     end
 
     def tracer=(tracer)
@@ -150,9 +163,9 @@ module RequestTracer
   end
 
   class DefaultTracer
-    def record(*args, &block)
-      Trace.push(args[1].to_h) do
-        block.call
+    def record(latest_trace, annotation, &block)
+      Trace.push(latest_trace.to_h) do |trace|
+        block.call(trace)
       end
     end
   end
