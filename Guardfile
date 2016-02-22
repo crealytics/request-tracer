@@ -10,7 +10,7 @@ guard :bundler do
   files.each { |file| watch(helper.real_path(file)) }
 end
 
-guard :rspec, cmd: "bundle exec rspec -t focus" do
+guard :rspec, cmd: "GENERATIVE_COUNT=5 bundle exec rspec -t focus" do
   require "guard/rspec/dsl"
   dsl = Guard::RSpec::Dsl.new(self)
 
