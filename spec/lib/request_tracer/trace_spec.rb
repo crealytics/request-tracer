@@ -4,7 +4,7 @@ describe RequestTracer::Trace do
   let(:trace_stack_size) { rand(2) }
   let(:trace_stack) do
     (1..trace_stack_size).inject([]) do |stack, i|
-      stack + [stack.last&.next_id || described_class.create]
+      stack + [(stack.last && stack.last.next_id)) || described_class.create]
     end
   end
   before do
@@ -17,7 +17,7 @@ describe RequestTracer::Trace do
     end
     it 'generates a new span_id for the scope of the block' do
       temp_span = record do |t|
-        expect(t.span_id).not_to eq(trace_stack.last&.span_id)
+        expect(t.span_id).not_to eq(trace_stack.last && trace_stack.last.span_id)
         expect(described_class.latest).to eq(t)
         t
       end
@@ -25,10 +25,10 @@ describe RequestTracer::Trace do
     end
     it 'takes the old span_id as the parent_span_id' do
       temp_span = record do |t|
-        expect(t.parent_id).to eq(trace_stack.last&.span_id)
+        expect(t.parent_id).to eq(trace_stack.last && trace_stack.last.span_id)
         t
       end
-      expect(described_class.latest&.span_id).to eq(temp_span.parent_id)
+      expect(described_class.latest && described_class.latest.span_id).to eq(temp_span.parent_id)
     end
     context 'when no previous trace exists' do
       let(:trace_stack_size) { 0 }
