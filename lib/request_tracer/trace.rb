@@ -28,6 +28,7 @@ module RequestTracer
         end
       end
 
+      attr_reader :value, :i64
       def initialize(value)
         @value = value
         @i64 = if @value > MAX_SIGNED_I64
@@ -37,6 +38,9 @@ module RequestTracer
         end
       end
 
+      def ==(other_span)
+        other_span&.value == @value
+      end
       def to_s; "%016x" % @value; end
       def to_i; @i64; end
     end
@@ -78,9 +82,7 @@ module RequestTracer
 
     def create
       span_id = generate_id
-      trace_id = TraceId.new(span_id, nil, span_id)
-      stack.push(trace_id)
-      trace_id
+      TraceId.new(span_id, nil, span_id)
     end
 
     def latest
@@ -88,7 +90,7 @@ module RequestTracer
     end
 
     def latest_or_create
-      latest || create
+      latest || stack.push(create)
     end
 
     def push(trace_info)
@@ -127,7 +129,7 @@ module RequestTracer
     end
 
     def record(annotation = nil, &block)
-      tracer.record(latest.next_id, annotation, &block)
+      tracer.record(latest&.next_id || create, annotation, &block)
     end
 
     def tracer=(tracer)
