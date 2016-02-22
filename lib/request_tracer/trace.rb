@@ -39,7 +39,7 @@ module RequestTracer
       end
 
       def ==(other_span)
-        other_span&.value == @value
+        other_span && (other_span.value == @value)
       end
       def to_s; "%016x" % @value; end
       def to_i; @i64; end
@@ -129,7 +129,7 @@ module RequestTracer
     end
 
     def record(annotation = nil, &block)
-      tracer.record(latest&.next_id || create, annotation, &block)
+      tracer.record((latest && latest.next_id) || create, annotation, &block)
     end
 
     def tracer=(tracer)
