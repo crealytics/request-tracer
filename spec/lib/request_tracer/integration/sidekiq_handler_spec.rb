@@ -37,7 +37,7 @@ describe RequestTracer::Integration::SidekiqHandler, :focus do
   end
 
   class ThreadSpawningMiddleware
-    def call(worker_class, job, queue, redis_pool, &blk)
+    def call(worker_instance, msg, queue, &blk)
       result = nil
       Thread.new { result = blk.call }.join
       result
@@ -47,10 +47,8 @@ describe RequestTracer::Integration::SidekiqHandler, :focus do
   before(:all) do
     Sidekiq::Testing.inline!
     RequestTracer.integrate_with(:sidekiq)
-    Sidekiq.configure_client do |config|
-      config.client_middleware do |chain|
-        chain.insert_after RequestTracer::Integration::SidekiqHandler::ClientMiddleware, ThreadSpawningMiddleware
-      end
+    Sidekiq::Testing.server_middleware do |chain|
+      chain.insert_before RequestTracer::Integration::SidekiqHandler::ServerMiddleware, ThreadSpawningMiddleware
     end
   end
 
