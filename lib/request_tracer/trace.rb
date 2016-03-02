@@ -94,6 +94,7 @@ module RequestTracer
     end
 
     def push(trace_info)
+      (yield ; return) unless trace_info
       trace = if trace_info.include?("trace_id") && trace_info.include?("span_id")
         TraceId.create(trace_info)
       else

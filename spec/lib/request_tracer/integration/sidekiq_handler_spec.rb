@@ -46,10 +46,6 @@ describe RequestTracer::Integration::SidekiqHandler do
 
   before(:all) do
     Sidekiq::Testing.inline!
-    RequestTracer.integrate_with(:sidekiq)
-    Sidekiq::Testing.server_middleware do |chain|
-      chain.insert_before RequestTracer::Integration::SidekiqHandler::ServerMiddleware, ThreadSpawningMiddleware
-    end
   end
 
   let(:result_checker) { ResultChecker.instance }
@@ -61,7 +57,19 @@ describe RequestTracer::Integration::SidekiqHandler do
     ResultChecker.clear
   end
 
-  context "when asynchronously calling a job" do
+  after do
+    Sidekiq::Testing.server_middleware {|chn| chn.clear }
+    Sidekiq.configure_client {|cfg|  cfg.client_middleware {|chn| chn.clear } }
+  end
+
+  context "when asynchronously calling a job with correctly setup middleware" do
+    before do
+      RequestTracer.integrate_with(:sidekiq)
+      Sidekiq::Testing.server_middleware do |chain|
+        chain.add ThreadSpawningMiddleware
+        chain.add RequestTracer::Integration::SidekiqHandler::ServerMiddleware
+      end
+    end
     context "when there is an existing trace" do
       before { RequestTracer::Trace.push trace.to_h }
       it "passes the trace from the main process to the worker and records the worker" do
@@ -72,6 +80,36 @@ describe RequestTracer::Integration::SidekiqHandler do
     it "calls the job with the originally given parameters" do
       TraceableJob.perform_async(a_string: "bar", a_number: 12)
       expect(result_checker.job_args).to eq([[{"a_string" => "bar", "a_number" => 12}]])
+    end
+  end
+  context "when asynchronously calling a job with missing server middleware" do
+    before do
+      RequestTracer.integrate_with(:sidekiq)
+      Sidekiq::Testing.server_middleware do |chain|
+        chain.add ThreadSpawningMiddleware
+      end
+    end
+    context "when there is an existing trace" do
+      before { RequestTracer::Trace.push trace.to_h }
+      it "passes the trace from the main process to the worker and records the worker" do
+        TraceableJob.perform_async('foo')
+        expect(result_checker.traces).to eq([{}])
+      end
+    end
+  end
+  context "when asynchronously calling a job with missing client middleware" do
+    before do
+      Sidekiq::Testing.server_middleware do |chain|
+        chain.add ThreadSpawningMiddleware
+        chain.add RequestTracer::Integration::SidekiqHandler::ServerMiddleware
+      end
+    end
+    context "when there is an existing trace" do
+      before { RequestTracer::Trace.push trace.to_h }
+      it "passes the trace from the main process to the worker and records the worker" do
+        TraceableJob.perform_async('foo')
+        expect(result_checker.traces).to eq([{}])
+      end
     end
   end
 end

@@ -7,8 +7,10 @@ module RequestTracer
       extend self
       def activate
         require 'sidekiq'
-        Sidekiq::Testing.server_middleware do |chain|
-          chain.add ServerMiddleware
+        Sidekiq.configure_server do |config|
+          config.server_middleware do |chain|
+            chain.add ServerMiddleware
+          end
         end
         Sidekiq.configure_client do |config|
           config.client_middleware do |chain|
