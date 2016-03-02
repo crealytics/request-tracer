@@ -4,7 +4,7 @@ require 'sidekiq/testing'
 Sidekiq.logger = Logger.new('/tmp/sidekiq.log')
 
 
-describe RequestTracer::Integration::SidekiqHandler, :focus do
+describe RequestTracer::Integration::SidekiqHandler do
   include RequestTracer::Integration::Base
 
   class ResultChecker
