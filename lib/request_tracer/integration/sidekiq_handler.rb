@@ -7,15 +7,11 @@ module RequestTracer
       extend self
       def activate
         require 'sidekiq'
-        Sidekiq.configure_server do |config|
-          config.server_middleware do |chain|
-            chain.add ServerMiddleware
-          end
+        Sidekiq.server_middleware do |chain|
+          chain.add ServerMiddleware
         end
-        Sidekiq.configure_client do |config|
-          config.client_middleware do |chain|
-            chain.add ClientMiddleware
-          end
+        Sidekiq.client_middleware do |chain|
+          chain.add ClientMiddleware
         end
       end
 
