@@ -51,9 +51,17 @@ describe RequestTracer::Trace do
     def push(&blk)
       described_class.push(previous_trace_hash, &blk)
     end
+    shared_examples "returning the block value" do
+      let(:block_value) { rand(1000) }
+      it 'returns the value from the block' do
+        returned = push {|t| block_value }
+        expect(returned).to eq(block_value)
+      end
+    end
     context 'when trace_hash contains a previous trace' do
       let(:previous_trace) { described_class.create}
       let(:previous_trace_hash) { previous_trace.to_h }
+      it_behaves_like "returning the block value"
       it 'keeps the span_id' do
         push do |t|
           expect(t.span_id).to eq(previous_trace.span_id)
@@ -72,6 +80,7 @@ describe RequestTracer::Trace do
     end
     context 'when no previous trace exists' do
       let(:previous_trace_hash) { {} }
+      it_behaves_like "returning the block value"
       it 'creates a new span_id' do
         push do |t|
           expect(t.span_id.i64.to_s).to match /[0-9a-z]+/i
@@ -87,6 +96,10 @@ describe RequestTracer::Trace do
           expect(t.parent_id).to eq(nil)
         end
       end
+    end
+    context 'when called with nil' do
+      let(:previous_trace_hash) { nil }
+      it_behaves_like "returning the block value"
     end
   end
 end
