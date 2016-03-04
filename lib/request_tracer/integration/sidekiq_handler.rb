@@ -25,8 +25,10 @@ module RequestTracer
 
       class ClientMiddleware
         def call(worker_class, job, queue, redis_pool)
-          job['trace'] = Trace.latest.to_h
-          yield
+          Trace.record do |trace|
+            job['trace'] = trace.to_h
+            yield
+          end
         end
       end
     end

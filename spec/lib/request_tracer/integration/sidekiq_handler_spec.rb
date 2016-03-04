@@ -71,10 +71,14 @@ describe RequestTracer::Integration::SidekiqHandler do
       end
     end
     context "when there is an existing trace" do
-      before { RequestTracer::Trace.push trace.to_h }
-      it "passes the trace from the main process to the worker and records the worker" do
+      let(:subtrace) { trace.next_id }
+      before do
+        RequestTracer::Trace.push trace.to_h
+        allow(RequestTracer::Trace).to receive(:record).and_yield(subtrace)
+      end
+      it "passes a sub-trace from the main process to the worker and pushes this on the trace stack in the worker" do
         TraceableJob.perform_async('foo')
-        expect(result_checker.traces).to eq([trace.to_h])
+        expect(result_checker.traces).to eq([subtrace.to_h])
       end
     end
     it "calls the job with the originally given parameters" do
