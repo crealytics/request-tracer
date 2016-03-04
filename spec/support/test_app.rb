@@ -22,6 +22,6 @@ class TestApp
   end
 
   def store_current_trace_info
-    $stderr.puts "%%% #{(Time.now.to_f * 1000).to_i} #{RequestTracer::Trace.latest.to_json}"
+    $stderr.puts "%%% #{(Time.now.to_f * 1000).to_i} #{RequestTracer.latest_trace_hash.to_json}"
   end
 end

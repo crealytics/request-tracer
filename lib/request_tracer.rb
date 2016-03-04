@@ -1,3 +1,5 @@
+require_relative 'request_tracer/trace'
+
 module RequestTracer
   B3_REQUIRED_FIELDS = %w(trace_id parent_span_id span_id)
   B3_REQUIRED_FIELDS_FROM_SHORT_NAMES = B3_REQUIRED_FIELDS.map {|f| [f.gsub("_", ""), f] }.to_h
@@ -13,5 +15,9 @@ module RequestTracer
       integration_module = RequestTracer::Integration.const_get(class_name)
       integration_module.activate
     end
+  end
+
+  def self.latest_trace_hash(*args)
+    Trace.latest.to_h
   end
 end
