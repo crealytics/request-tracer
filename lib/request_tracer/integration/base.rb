@@ -1,9 +1,10 @@
 module RequestTracer
   module Integration
     module Base
+      HEADER_REGEX = /HTTP_X_B3_(.*)/
       def extract_fields_from_headers(header_hash)
         header_hash.map do |k,v|
-          special_header = /HTTP_X_B3_(.*)/.match(k)
+          special_header = HEADER_REGEX.match(k)
           special_header && [B3_REQUIRED_FIELDS_FROM_SHORT_NAMES[special_header[1].downcase], v]
         end.compact.to_h
       end
