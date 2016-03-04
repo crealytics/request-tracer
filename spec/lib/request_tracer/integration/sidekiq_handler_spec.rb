@@ -91,7 +91,7 @@ describe RequestTracer::Integration::SidekiqHandler do
     end
     context "when there is an existing trace" do
       before { RequestTracer::Trace.push trace.to_h }
-      it "passes the trace from the main process to the worker and records the worker" do
+      it "does not pass the trace from the main process to the worker and records the worker" do
         TraceableJob.perform_async('foo')
         expect(result_checker.traces).to eq([{}])
       end
@@ -106,7 +106,7 @@ describe RequestTracer::Integration::SidekiqHandler do
     end
     context "when there is an existing trace" do
       before { RequestTracer::Trace.push trace.to_h }
-      it "passes the trace from the main process to the worker and records the worker" do
+      it "does not pass the trace from the main process to the worker and records the worker" do
         TraceableJob.perform_async('foo')
         expect(result_checker.traces).to eq([{}])
       end
