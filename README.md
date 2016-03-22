@@ -15,6 +15,15 @@ Request Tracer integrates with various other gems in order to transparently
 read incoming trace headers and add trace headers to outgoing service calls.
 A good introduction into Zipkin terminology [can be found here](http://www.slideshare.net/johanoskarsson/zipkin-strangeloop/25).
 
+Spawning traces
+---------------
+If you want to spawn from an existing trace or create a fresh one if there is no current trace, you can use
+```ruby
+RequestTracer::Trace.record do
+  # Some code that might contain outgoing calls etc
+end
+```
+
 Reading trace headers
 ---------------------
 In your `config.ru` add the RackHandler middleware like this:
