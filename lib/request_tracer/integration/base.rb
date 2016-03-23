@@ -9,7 +9,7 @@ module RequestTracer
         end.compact.to_h
       end
       def extract_headers_from_fields(field_hash)
-        B3_REQUIRED_FIELDS.map {|f| ["X_B3_" + f.gsub("_", "").upcase, field_hash[f]]}.to_h
+        B3_REQUIRED_FIELDS.map {|f| ["X-B3-" + f.split('_').collect(&:capitalize).join, field_hash[f]]}.to_h
       end
     end
   end
