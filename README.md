@@ -37,8 +37,29 @@ run MyApp.new
 
 Writing trace headers
 ---------------------
-Somewhere in your code (e.g. in an initializer under `config/initializers/request-tracing.rb`)
-add the following call:
+
+### RestClient
+
 ```ruby
+# Somewhere in an initializer (e.g. under `config/initializers/request-tracing.rb`)
 RequestTracer.integrate_with(:rest_client)
+
+# Perform rest calls as usual
+RestClient.get("http://www.example.com")
+```
+
+### Faraday
+
+```ruby
+# Somewhere in an initializer (e.g. under `config/initializers/request-tracing.rb`)
+RequestTracer.integrate_with(:faraday)
+
+# Client instantiation
+client = Faraday.new("http://www.example.com/") do |conn|
+  conn.use :tracing
+  conn.adapter Faraday.default_adapter
+end
+
+# Perform rest calls as usual
+client.get
 ```

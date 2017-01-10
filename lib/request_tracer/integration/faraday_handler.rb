@@ -7,10 +7,7 @@ module RequestTracer
     module FaradayHandler
       extend self
       def activate
-        ::Faraday::Request.register_middleware(nil, tracing: FaradayTracing)
-        builder = Faraday::RackBuilder.new
-        builder.insert 0, FaradayTracing
-        Faraday.default_connection_options.builder = builder
+        ::Faraday::Middleware.register_middleware tracing: FaradayTracing
       end
     end
     class FaradayTracing < ::Faraday::Middleware
