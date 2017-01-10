@@ -1,8 +1,8 @@
 language: ruby
 cache: bundler
 rvm:
-  - 2.2.3
-  - 2.3.0
+  - 2.2.5
+  - 2.3.3
   - jruby-head
   - rbx
 before_install:
